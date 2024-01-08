@@ -1,0 +1,53 @@
+@baseUrl = http://localhost:3333
+@authToken = {{authenticate.response.body.$.access_token}}
+
+# @name register
+POST {{baseUrl}}/accounts
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "123456",
+  "avatarId": "2bb4e8c1-7d9a-4793-948e-b00bf74c66d7"
+}
+
+###
+
+# @name authenticate
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "email": "johndoe@example.com",
+  "password": "123456"
+}
+
+###
+
+# @name create_movie
+POST {{baseUrl}}/movies
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Harry Potter",
+  "description": "The best film of all time",
+  "rating": 5,
+  "watchedAt": "2024-01-09T19:49:13.117Z",
+  "tagsIds": []
+}
+
+###
+
+# @name upload_avatar
+POST {{baseUrl}}/avatar
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer {{authToken}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="sample-upload.png"
+Content-Type: image/png
+
+< ./test/e2e/sample-upload.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

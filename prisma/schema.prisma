@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SPECTATOR
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         UserRole  @default(SPECTATOR)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
+
+  avatar Avatar?
+  movies Movie[]
+  tags   Tag[]
+
+  @@map("users")
+}
+
+model Avatar {
+  id     String  @id @default(uuid())
+  userId String? @unique @map("user_id")
+  title  String
+  url    String
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("avatars")
+}
+
+model Movie {
+  id          String    @id @default(uuid())
+  spectatorId String    @map("spectator_id")
+  title       String
+  description String?
+  rating      Int?
+  watchedAt   DateTime? @map("watched_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  spectator User       @relation(fields: [spectatorId], references: [id])
+  tags      MovieTag[]
+
+  @@map("movies")
+}
+
+model MovieTag {
+  id      String @id @default(uuid())
+  tagId   String @map("tag_id")
+  movieId String @map("movie_id")
+
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, movieId])
+  @@map("movie_tags")
+}
+
+model Tag {
+  id       String @id @default(uuid())
+  authorId String @map("author_id")
+  name     String
+
+  author User       @relation(fields: [authorId], references: [id])
+  movies MovieTag[]
+
+  @@map("tags")
+}
