@@ -24,4 +24,12 @@ export class PrismaSpectatorAvatarsRepository
       },
     })
   }
+
+  async delete(avatar: SpectatorAvatar): Promise<void> {
+    await this.prisma.avatar.deleteMany({
+      where: {
+        id: avatar.id.toString(),
+      },
+    })
+  }
 }

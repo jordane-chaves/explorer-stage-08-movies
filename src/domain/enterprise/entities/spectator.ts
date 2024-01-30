@@ -18,12 +18,24 @@ export class Spectator extends Entity<SpectatorProps> {
     return this.props.name
   }
 
+  set name(name: string) {
+    this.props.name = name
+  }
+
   get email() {
     return this.props.email
   }
 
+  set email(email: string) {
+    this.props.email = email
+  }
+
   get passwordHash() {
     return this.props.passwordHash
+  }
+
+  set passwordHash(passwordHash: string) {
+    this.props.passwordHash = passwordHash
   }
 
   get avatar() {

@@ -14,6 +14,20 @@ export class PrismaAvatarsRepository implements AvatarsRepository {
     private prisma: PrismaService,
   ) {}
 
+  async findById(id: string): Promise<Avatar | null> {
+    const avatar = await this.prisma.avatar.findUnique({
+      where: {
+        id,
+      },
+    })
+
+    if (!avatar) {
+      return null
+    }
+
+    return PrismaAvatarMapper.toDomain(avatar)
+  }
+
   async create(avatar: Avatar): Promise<void> {
     const data = PrismaAvatarMapper.toPrisma(avatar)
 

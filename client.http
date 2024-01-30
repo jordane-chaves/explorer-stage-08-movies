@@ -8,8 +8,7 @@ Content-Type: application/json
 {
   "name": "John Doe",
   "email": "johndoe@example.com",
-  "password": "123456",
-  "avatarId": "2bb4e8c1-7d9a-4793-948e-b00bf74c66d7"
+  "password": "123456"
 }
 
 ###

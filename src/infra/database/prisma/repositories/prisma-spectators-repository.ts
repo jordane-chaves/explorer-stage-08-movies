@@ -32,10 +32,34 @@ export class PrismaSpectatorsRepository implements SpectatorsRepository {
     return PrismaSpectatorMapper.toDomain(spectator)
   }
 
+  async findById(id: string): Promise<Spectator | null> {
+    const spectator = await this.prisma.user.findUnique({
+      where: {
+        id,
+        role: 'SPECTATOR',
+      },
+    })
+
+    if (!spectator) {
+      return null
+    }
+
+    return PrismaSpectatorMapper.toDomain(spectator)
+  }
+
   async create(spectator: Spectator): Promise<void> {
     const data = PrismaSpectatorMapper.toPrisma(spectator)
 
     await this.prisma.user.create({
+      data,
+    })
+  }
+
+  async save(spectator: Spectator): Promise<void> {
+    const data = PrismaSpectatorMapper.toPrisma(spectator)
+
+    await this.prisma.user.update({
+      where: { id: data.id },
       data,
     })
 
