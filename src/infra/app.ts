@@ -2,6 +2,7 @@ import 'reflect-metadata'
 import fastify from 'fastify'
 import { ZodError } from 'zod'
 
+import fastifyCors from '@fastify/cors'
 import fastifyJwt from '@fastify/jwt'
 import fastifyMultipart from '@fastify/multipart'
 
@@ -12,6 +13,8 @@ import { movieRoutes } from './http/controllers/movies/routes'
 import { tagRoutes } from './http/controllers/tags/routes'
 
 export const app = fastify()
+
+app.register(fastifyCors)
 
 app.register(fastifyJwt, {
   secret: {
