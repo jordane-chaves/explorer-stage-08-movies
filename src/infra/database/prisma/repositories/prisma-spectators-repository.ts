@@ -6,7 +6,10 @@ import { Spectator } from '@/domain/enterprise/entities/spectator'
 
 import { PrismaService } from '..'
 
+import { SpectatorWithAvatar } from '@/domain/enterprise/entities/value-objects/spectator-with-avatar'
+
 import { PrismaSpectatorMapper } from '../mappers/prisma-spectator-mapper'
+import { PrismaSpectatorWithAvatarMapper } from '../mappers/prisma-spectator-with-avatar-mapper'
 
 @injectable()
 export class PrismaSpectatorsRepository implements SpectatorsRepository {
@@ -45,6 +48,24 @@ export class PrismaSpectatorsRepository implements SpectatorsRepository {
     }
 
     return PrismaSpectatorMapper.toDomain(spectator)
+  }
+
+  async findByIdWithAvatar(id: string): Promise<SpectatorWithAvatar | null> {
+    const spectator = await this.prisma.user.findUnique({
+      where: {
+        id,
+        role: 'SPECTATOR',
+      },
+      include: {
+        avatar: true,
+      },
+    })
+
+    if (!spectator) {
+      return null
+    }
+
+    return PrismaSpectatorWithAvatarMapper.toDomain(spectator)
   }
 
   async create(spectator: Spectator): Promise<void> {
