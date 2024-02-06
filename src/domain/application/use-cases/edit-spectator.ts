@@ -9,6 +9,7 @@ import { HashGenerator } from '../cryptography/hash-generator'
 import { AvatarsRepository } from '../repositories/avatars-repository'
 import { SpectatorAvatarsRepository } from '../repositories/spectator-avatars-repository'
 import { SpectatorsRepository } from '../repositories/spectators-repository'
+import { Eraser } from '../storage/eraser'
 import { NotAllowedError } from './errors/not-allowed-error'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { SendOldAndNewPasswordError } from './errors/send-old-and-new-password-error'
@@ -40,6 +41,8 @@ export class EditSpectatorUseCase {
     private hashGenerator: HashGenerator,
     @inject('HashComparer')
     private hashComparer: HashComparer,
+    @inject('Eraser')
+    private eraser: Eraser,
   ) {}
 
   async execute(
@@ -72,9 +75,14 @@ export class EditSpectatorUseCase {
     }
 
     if (avatarId) {
-      if (spectator.avatar) {
-        await this.spectatorAvatarsRepository.delete(spectator.avatar)
+      const oldAvatar =
+        await this.avatarsRepository.findBySpectatorId(spectatorId)
+
+      if (oldAvatar) {
+        await this.eraser.delete(oldAvatar.url)
       }
+
+      await this.spectatorAvatarsRepository.deleteBySpectatorId(spectatorId)
 
       const avatar = await this.avatarsRepository.findById(avatarId)
 

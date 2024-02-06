@@ -4,6 +4,8 @@ import { z } from 'zod'
 
 import { CreateTagUseCase } from '@/domain/application/use-cases/create-tag'
 
+import { TagPresenter } from '../../presenters/tag-presenter'
+
 export async function createTag(request: FastifyRequest, reply: FastifyReply) {
   const createTagBodySchema = z.object({
     name: z.string(),
@@ -27,5 +29,9 @@ export async function createTag(request: FastifyRequest, reply: FastifyReply) {
     })
   }
 
-  return reply.status(201).send()
+  const { tag } = result.value
+
+  return reply.status(201).send({
+    tag: TagPresenter.toHTTP(tag),
+  })
 }

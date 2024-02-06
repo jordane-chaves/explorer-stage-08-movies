@@ -5,8 +5,6 @@ import { z } from 'zod'
 import { CreateMovieUseCase } from '@/domain/application/use-cases/create-movie'
 import { InvalidRatingRangeError } from '@/domain/enterprise/entities/value-objects/errors/invalid-rating-range-error'
 
-import { MoviePresenter } from '../../presenters/movie-presenter'
-
 export async function createMovie(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -16,10 +14,10 @@ export async function createMovie(
     description: z.string().optional(),
     rating: z.number().min(1).max(5).optional(),
     watchedAt: z.coerce.date().optional(),
-    tagsIds: z.array(z.string().uuid()),
+    tagsNames: z.array(z.string()),
   })
 
-  const { title, description, rating, watchedAt, tagsIds } =
+  const { title, description, rating, watchedAt, tagsNames } =
     createMovieBodySchema.parse(request.body)
 
   const createMovieUseCase = container.resolve(CreateMovieUseCase)
@@ -32,7 +30,7 @@ export async function createMovie(
     description,
     rating,
     watchedAt,
-    tagsIds,
+    tagsNames,
   })
 
   if (result.isLeft()) {
@@ -52,9 +50,5 @@ export async function createMovie(
     }
   }
 
-  const { movie } = result.value
-
-  return reply.status(201).send({
-    movie: MoviePresenter.toHTTP(movie),
-  })
+  return reply.status(201).send()
 }

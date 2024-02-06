@@ -16,6 +16,33 @@ export class InMemoryTagsRepository implements TagsRepository {
     return tags
   }
 
+  async findManyByAuthorIdAndNames(
+    authorId: string,
+    names: string[],
+  ): Promise<Tag[]> {
+    const tags = this.items.filter(
+      (item) =>
+        item.authorId.toString() === authorId && names.includes(item.name),
+    )
+
+    return tags
+  }
+
+  async findByAuthorIdAndName(
+    authorId: string,
+    name: string,
+  ): Promise<Tag | null> {
+    const tag = this.items.find(
+      (item) => item.authorId.toString() === authorId && item.name === name,
+    )
+
+    if (!tag) {
+      return null
+    }
+
+    return tag
+  }
+
   async findById(id: string): Promise<Tag | null> {
     const tag = this.items.find((item) => item.id.toString() === id)
 
@@ -24,6 +51,10 @@ export class InMemoryTagsRepository implements TagsRepository {
     }
 
     return tag
+  }
+
+  async createMany(tags: Tag[]): Promise<void> {
+    this.items.push(...tags)
   }
 
   async create(tag: Tag): Promise<void> {

@@ -5,6 +5,7 @@ import { makeSpectatorAvatar } from 'test/factories/make-spectator-avatar'
 import { InMemoryAvatarsRepository } from 'test/repositories/in-memory-avatars-repository'
 import { InMemorySpectatorAvatarsRepository } from 'test/repositories/in-memory-spectator-avatars-repository'
 import { InMemorySpectatorsRepository } from 'test/repositories/in-memory-spectators-repository'
+import { FakeEraser } from 'test/storage/fake-eraser'
 
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
@@ -16,19 +17,24 @@ let inMemoryAvatarsRepository: InMemoryAvatarsRepository
 let inMemorySpectatorAvatarsRepository: InMemorySpectatorAvatarsRepository
 let inMemorySpectatorsRepository: InMemorySpectatorsRepository
 let fakeHasher: FakeHasher
+let fakeEraser: FakeEraser
 
 let sut: EditSpectatorUseCase
 
 describe('Edit Spectator', () => {
   beforeEach(() => {
-    inMemoryAvatarsRepository = new InMemoryAvatarsRepository()
     inMemorySpectatorAvatarsRepository =
       new InMemorySpectatorAvatarsRepository()
+    inMemoryAvatarsRepository = new InMemoryAvatarsRepository(
+      inMemorySpectatorAvatarsRepository,
+    )
     inMemorySpectatorsRepository = new InMemorySpectatorsRepository(
       inMemorySpectatorAvatarsRepository,
+      inMemoryAvatarsRepository,
     )
 
     fakeHasher = new FakeHasher()
+    fakeEraser = new FakeEraser()
 
     sut = new EditSpectatorUseCase(
       inMemorySpectatorsRepository,
@@ -36,6 +42,7 @@ describe('Edit Spectator', () => {
       inMemorySpectatorAvatarsRepository,
       fakeHasher,
       fakeHasher,
+      fakeEraser,
     )
   })
 
@@ -43,15 +50,18 @@ describe('Edit Spectator', () => {
     const spectator = makeSpectator({}, new UniqueEntityID('spectator-1'))
     inMemorySpectatorsRepository.items.push(spectator)
 
+    const avatar1 = makeAvatar({}, new UniqueEntityID('avatar-1'))
+    const avatar2 = makeAvatar({}, new UniqueEntityID('avatar-2'))
+    inMemoryAvatarsRepository.items.push(avatar1, avatar2)
+
+    fakeEraser.items.push({ fileName: avatar1.url })
+
     spectator.avatar = makeSpectatorAvatar({
-      avatarId: new UniqueEntityID('avatar-1'),
+      avatarId: avatar1.id,
       spectatorId: spectator.id,
     })
 
     inMemorySpectatorAvatarsRepository.items.push(spectator.avatar)
-
-    const avatar2 = makeAvatar({}, new UniqueEntityID('avatar-2'))
-    inMemoryAvatarsRepository.items.push(avatar2)
 
     const result = await sut.execute({
       spectatorId: 'spectator-1',
@@ -75,6 +85,7 @@ describe('Edit Spectator', () => {
         spectatorId: new UniqueEntityID('spectator-1'),
       }),
     )
+    expect(fakeEraser.items).toHaveLength(0)
   })
 
   it('should hash spectator password upon edition', async () => {

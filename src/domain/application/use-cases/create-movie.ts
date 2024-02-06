@@ -5,10 +5,12 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Movie } from '@/domain/enterprise/entities/movie'
 import { MovieTag } from '@/domain/enterprise/entities/movie-tag'
 import { MovieTagList } from '@/domain/enterprise/entities/movie-tag-list'
+import { Tag } from '@/domain/enterprise/entities/tag'
 import { InvalidRatingRangeError } from '@/domain/enterprise/entities/value-objects/errors/invalid-rating-range-error'
 import { Rating } from '@/domain/enterprise/entities/value-objects/rating'
 
 import { MoviesRepository } from '../repositories/movies-repository'
+import { TagsRepository } from '../repositories/tags-repository'
 
 interface CreateMovieUseCaseRequest {
   spectatorId: string
@@ -16,7 +18,7 @@ interface CreateMovieUseCaseRequest {
   description?: string
   rating?: number
   watchedAt?: Date
-  tagsIds: string[]
+  tagsNames: string[]
 }
 
 type CreateMovieUseCaseResponse = Either<
@@ -31,12 +33,14 @@ export class CreateMovieUseCase {
   constructor(
     @inject('MoviesRepository')
     private moviesRepository: MoviesRepository,
+    @inject('TagsRepository')
+    private tagsRepository: TagsRepository,
   ) {}
 
   async execute(
     request: CreateMovieUseCaseRequest,
   ): Promise<CreateMovieUseCaseResponse> {
-    const { spectatorId, title, description, rating, watchedAt, tagsIds } =
+    const { spectatorId, title, description, rating, watchedAt, tagsNames } =
       request
 
     const movie = Movie.create({
@@ -56,12 +60,30 @@ export class CreateMovieUseCase {
       movie.rating = newRating.value
     }
 
-    const movieTags = tagsIds.map((tagId) => {
-      return MovieTag.create({
-        tagId: new UniqueEntityID(tagId),
+    const spectatorTags = await this.tagsRepository.findManyByAuthorIdAndNames(
+      spectatorId,
+      tagsNames,
+    )
+
+    const newTags = tagsNames
+      .filter((tagName) => !spectatorTags.some((tag) => tag.name === tagName))
+      .map((tag) =>
+        Tag.create({
+          authorId: new UniqueEntityID(spectatorId),
+          name: tag,
+        }),
+      )
+
+    await this.tagsRepository.createMany(newTags)
+
+    spectatorTags.push(...newTags)
+
+    const movieTags = spectatorTags.map((tag) =>
+      MovieTag.create({
+        tagId: tag.id,
         movieId: movie.id,
-      })
-    })
+      }),
+    )
 
     movie.tags = new MovieTagList(movieTags)
 

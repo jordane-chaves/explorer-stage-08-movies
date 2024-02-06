@@ -1,7 +1,7 @@
 import { inject, injectable } from 'tsyringe'
 
 import { Either, left, right } from '@/core/either'
-import { Movie } from '@/domain/enterprise/entities/movie'
+import { MovieDetails } from '@/domain/enterprise/entities/value-objects/movie-details'
 
 import { MoviesRepository } from '../repositories/movies-repository'
 import { NotAllowedError } from './errors/not-allowed-error'
@@ -15,7 +15,7 @@ interface GetMovieUseCaseRequest {
 type GetMovieUseCaseResponse = Either<
   ResourceNotFoundError | NotAllowedError,
   {
-    movie: Movie
+    movie: MovieDetails
   }
 >
 
@@ -31,7 +31,7 @@ export class GetMovieUseCase {
   ): Promise<GetMovieUseCaseResponse> {
     const { movieId, spectatorId } = request
 
-    const movie = await this.moviesRepository.findById(movieId)
+    const movie = await this.moviesRepository.findDetailsById(movieId)
 
     if (!movie) {
       return left(new ResourceNotFoundError())

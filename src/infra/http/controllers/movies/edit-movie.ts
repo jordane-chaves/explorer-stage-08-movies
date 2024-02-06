@@ -10,7 +10,7 @@ export async function editMovie(request: FastifyRequest, reply: FastifyReply) {
     title: z.string(),
     description: z.string().optional(),
     rating: z.number().min(1).max(5).optional(),
-    watchedAt: z.date().optional(),
+    watchedAt: z.coerce.date().optional(),
     tagsIds: z.array(z.string().uuid()),
   })
 

@@ -8,9 +8,9 @@ export class MoviePresenter {
       title: movie.title,
       description: movie.description,
       rating: movie.rating?.value,
-      watchedAt: movie.watchedAt,
-      createdAt: movie.createdAt,
-      updatedAt: movie.updatedAt,
+      watched_at: movie.watchedAt,
+      created_at: movie.createdAt,
+      updated_at: movie.updatedAt,
     }
   }
 }

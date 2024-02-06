@@ -7,6 +7,9 @@ import { Movie } from '@/domain/enterprise/entities/movie'
 
 import { PrismaService } from '..'
 
+import { MovieDetails } from '@/domain/enterprise/entities/value-objects/movie-details'
+
+import { PrismaMovieDetailsMapper } from '../mappers/prisma-movie-details-mapper'
 import { PrismaMovieMapper } from '../mappers/prisma-movie-mapper'
 
 @injectable()
@@ -31,6 +34,32 @@ export class PrismaMoviesRepository implements MoviesRepository {
     })
 
     return movies.map(PrismaMovieMapper.toDomain)
+  }
+
+  async findDetailsById(id: string): Promise<MovieDetails | null> {
+    const movie = await this.prisma.movie.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        spectator: {
+          include: {
+            avatar: true,
+          },
+        },
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    })
+
+    if (!movie) {
+      return null
+    }
+
+    return PrismaMovieDetailsMapper.toDomain(movie)
   }
 
   async findById(id: string): Promise<Movie | null> {

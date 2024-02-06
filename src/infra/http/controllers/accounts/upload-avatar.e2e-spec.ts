@@ -33,7 +33,8 @@ describe('Upload Avatar (E2E)', () => {
 
     expect(response.statusCode).toBe(201)
     expect(response.body).toEqual({
-      avatarId: expect.any(String),
+      avatar_id: expect.any(String),
+      avatar_url: expect.any(String),
     })
   })
 })

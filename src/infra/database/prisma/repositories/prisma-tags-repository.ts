@@ -15,6 +15,22 @@ export class PrismaTagsRepository implements TagsRepository {
     private prisma: PrismaService,
   ) {}
 
+  async findManyByAuthorIdAndNames(
+    authorId: string,
+    names: string[],
+  ): Promise<Tag[]> {
+    const tags = await this.prisma.tag.findMany({
+      where: {
+        authorId,
+        name: {
+          in: names,
+        },
+      },
+    })
+
+    return tags.map(PrismaTagMapper.toDomain)
+  }
+
   async findManyByAuthorId(
     authorId: string,
     { page, perPage }: PaginationParams,
@@ -30,6 +46,24 @@ export class PrismaTagsRepository implements TagsRepository {
     return tags.map(PrismaTagMapper.toDomain)
   }
 
+  async findByAuthorIdAndName(
+    authorId: string,
+    name: string,
+  ): Promise<Tag | null> {
+    const tag = await this.prisma.tag.findFirst({
+      where: {
+        authorId,
+        name,
+      },
+    })
+
+    if (!tag) {
+      return null
+    }
+
+    return PrismaTagMapper.toDomain(tag)
+  }
+
   async findById(id: string): Promise<Tag | null> {
     const tag = await this.prisma.tag.findUnique({
       where: {
@@ -42,6 +76,15 @@ export class PrismaTagsRepository implements TagsRepository {
     }
 
     return PrismaTagMapper.toDomain(tag)
+  }
+
+  async createMany(tags: Tag[]): Promise<void> {
+    const data = tags.map(PrismaTagMapper.toPrisma)
+
+    await this.prisma.tag.createMany({
+      data,
+      skipDuplicates: true,
+    })
   }
 
   async create(tag: Tag): Promise<void> {

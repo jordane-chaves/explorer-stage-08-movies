@@ -1,6 +1,5 @@
 import request from 'supertest'
 import { SpectatorFactory } from 'test/factories/make-spectator'
-import { TagFactory } from 'test/factories/make-tag'
 
 import { app } from '@/infra/app'
 import { JwtEncrypter } from '@/infra/cryptography/jwt-encrypter'
@@ -8,14 +7,12 @@ import { PrismaService } from '@/infra/database/prisma'
 
 let prisma: PrismaService
 let spectatorFactory: SpectatorFactory
-let tagFactory: TagFactory
 let jwt: JwtEncrypter
 
 describe('Create Movie (E2E)', () => {
   beforeAll(async () => {
     prisma = new PrismaService()
     spectatorFactory = new SpectatorFactory(prisma)
-    tagFactory = new TagFactory(prisma)
     jwt = new JwtEncrypter()
 
     await app.ready()
@@ -28,9 +25,6 @@ describe('Create Movie (E2E)', () => {
   test('[POST] /movies', async () => {
     const spectator = await spectatorFactory.makePrismaSpectator()
 
-    const tag1 = await tagFactory.makePrismaTag({ authorId: spectator.id })
-    const tag2 = await tagFactory.makePrismaTag({ authorId: spectator.id })
-
     const accessToken = await jwt.encrypt({ sub: spectator.id.toString() })
 
     const response = await request(app.server)
@@ -41,7 +35,7 @@ describe('Create Movie (E2E)', () => {
         description: 'The best film of all time',
         rating: 5,
         watchedAt: new Date(),
-        tagsIds: [tag1.id.toString(), tag2.id.toString()],
+        tagsNames: ['adventure', 'fantasy'],
       })
 
     expect(response.statusCode).toBe(201)

@@ -1,11 +1,16 @@
 import { randomUUID } from 'node:crypto'
 
+import { Eraser } from '@/domain/application/storage/eraser'
 import { UploadParams, Uploader } from '@/domain/application/storage/uploader'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3'
 
 import { env } from '../env'
 
-export class R2Storage implements Uploader {
+export class R2Storage implements Uploader, Eraser {
   private client: S3Client
 
   constructor() {
@@ -39,5 +44,14 @@ export class R2Storage implements Uploader {
     return {
       url: uniqueFileName,
     }
+  }
+
+  async delete(fileName: string): Promise<void> {
+    await this.client.send(
+      new DeleteObjectCommand({
+        Bucket: env.AWS_BUCKET_NAME,
+        Key: fileName,
+      }),
+    )
   }
 }

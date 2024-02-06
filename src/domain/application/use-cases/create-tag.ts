@@ -30,6 +30,17 @@ export class CreateTagUseCase {
   ): Promise<CreateTagUseCaseResponse> {
     const { spectatorId, name } = request
 
+    const tagAlreadyExists = await this.tagsRepository.findByAuthorIdAndName(
+      spectatorId,
+      name,
+    )
+
+    if (tagAlreadyExists) {
+      return right({
+        tag: tagAlreadyExists,
+      })
+    }
+
     const tag = Tag.create({
       authorId: new UniqueEntityID(spectatorId),
       name,

@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { NotAllowedError } from '@/domain/application/use-cases/errors/not-allowed-error'
 import { GetMovieUseCase } from '@/domain/application/use-cases/get-movie'
 
-import { MoviePresenter } from '../../presenters/movie-presenter'
+import { MovieDetailsPresenter } from '../../presenters/movie-details-presenter'
 
 export async function getMovie(request: FastifyRequest, reply: FastifyReply) {
   const getMovieParamsSchema = z.object({
@@ -42,6 +42,6 @@ export async function getMovie(request: FastifyRequest, reply: FastifyReply) {
   const { movie } = result.value
 
   return reply.status(200).send({
-    movie: MoviePresenter.toHTTP(movie),
+    movie: MovieDetailsPresenter.toHTTP(movie),
   })
 }

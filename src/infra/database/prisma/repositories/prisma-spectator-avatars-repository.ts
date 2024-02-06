@@ -25,10 +25,10 @@ export class PrismaSpectatorAvatarsRepository
     })
   }
 
-  async delete(avatar: SpectatorAvatar): Promise<void> {
+  async deleteBySpectatorId(spectatorId: string): Promise<void> {
     await this.prisma.avatar.deleteMany({
       where: {
-        id: avatar.id.toString(),
+        userId: spectatorId,
       },
     })
   }

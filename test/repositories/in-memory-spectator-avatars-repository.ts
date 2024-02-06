@@ -10,8 +10,10 @@ export class InMemorySpectatorAvatarsRepository
     this.items.push(avatar)
   }
 
-  async delete(avatar: SpectatorAvatar): Promise<void> {
-    const itemIndex = this.items.findIndex((item) => item.id.equals(avatar.id))
+  async deleteBySpectatorId(spectatorId: string): Promise<void> {
+    const itemIndex = this.items.findIndex(
+      (item) => item.spectatorId.toString() === spectatorId,
+    )
 
     if (itemIndex >= 0) {
       this.items.splice(itemIndex, 1)
