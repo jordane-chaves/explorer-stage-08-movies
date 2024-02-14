@@ -29,7 +29,9 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 
 ## 💻 Projeto
 
-A ideia deste exercício foi criar uma aplicação em Node.js onde o usuário cadastra um filme, preenche com algumas informações e cria tags relacionadas a ele.
+Aproveitei este projeto backend para estudar Clean Architecture, Domain-Driven Design (DDD) e alguns outros patterns como Repository e Factory patterns.
+
+RocketMovies é uma aplicação para cadastrar informações sobre filmes. Podendo ser adicionado uma breve descrição, nota, tags e a data que foi assistido.
 
 Veja abaixo o diagrama do banco de dados:
 
