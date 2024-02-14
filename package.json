@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsup src",
-    "start": "node dist/infra/server.js",
+    "start": "pm2-runtime start ecosystem.config.js --env production",
     "start:dev": "tsx watch src/infra/server.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
@@ -27,6 +27,7 @@
     "dotenv": "^16.3.1",
     "dotenv-expand": "^10.0.0",
     "fastify": "^4.25.2",
+    "pm2": "^5.3.1",
     "reflect-metadata": "^0.2.1",
     "tsyringe": "^4.8.0",
     "zod": "^3.22.4"
