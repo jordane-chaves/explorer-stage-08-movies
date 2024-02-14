@@ -8,6 +8,7 @@ async function bootstrap() {
   await prisma.$connect()
 
   await app.listen({
+    host: env.HOST,
     port: env.PORT,
   })
 }
